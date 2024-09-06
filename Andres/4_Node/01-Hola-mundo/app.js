@@ -6,4 +6,5 @@ console.log(nombre2);
 
 //La ejecucion se puede hace porque tenemos node instalado
 
-console.log("Hola Mundo desde NODE!")
+console.log("Hola Mundo desde NODE!");
+
