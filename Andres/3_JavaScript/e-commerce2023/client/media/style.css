@@ -183,3 +183,9 @@
 
 
 
+/* :root {
+    --grid__devMode-4: repeating-linear-gradient(90deg, transparent -1rem, transparent 0%, rgba(255, 69, 0, .2) 0, rgba(255, 69, 0, .2) calc(25% - .75rem));
+    --grid__devMode-8: repeating-linear-gradient(90deg, transparent -1rem, transparent 0%, rgba(255, 69, 0, .2) 0, rgba(255, 69, 0, .2) calc(12.5% - .875rem));
+    --grid__devMode-12-md: repeating-linear-gradient(90deg, transparent -1rem, transparent 0%, rgba(255, 69, 0, .2) 0, rgba(255, 69, 0, .2) calc(8.3% - .9rem));
+    --grid__devMode-12-lg: repeating-linear-gradient(90deg, transparent -1.5rem, transparent 0%, rgba(255, 69, 0, .2) 0, rgba(255, 69, 0, .2) calc(8.3% - 1.35rem));
+} */
