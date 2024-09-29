@@ -8,28 +8,28 @@ const productos = [
         productName: "banana",
         price: 480,
         quantity: 1,
-        img:"/client/media/banana.png",
+        img:"/client/media2/bananas.jpg",
     },
     {
         id:2,
         productName: "leche",
         price: 950,
         quantity: 1,
-        img:"/client/media/leche.png",
+        img:"/client/media2/leche.jpg",
     },
     {
         id:3,
         productName: "pollo",
         price: 480,
         quantity: 1,
-        img:"/client/media/pollo.png",
+        img:"/client/media2/pollo.jpg",
     },
     {
         id:4,
         productName: "mayonesa",
         price: 510,
         quantity: 1,
-        img:"/client/media/mayonesa.png",
+        img:"/client/media2/mayonesa.jpg",
     }
 
 ];
