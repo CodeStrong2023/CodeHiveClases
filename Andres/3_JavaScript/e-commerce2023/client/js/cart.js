@@ -1,12 +1,14 @@
 const modalOverlay = document.getElementById("modal-overlay");
 const modalContainer = document.getElementById("modal-container");
 const cartBtn = document.getElementById("cart-btn");
+const cartCounter = document.getElementById("cart-counter");
 
 const displayCart = () => {
     //Setteo de inicio
     modalContainer.innerHTML = "";
     modalContainer.style.display = "block";
     modalOverlay.style.display = "block";
+
     //Modal header
     const modalHeader = document.createElement('div'); //Podemos crear lo que queramos
     
@@ -30,6 +32,7 @@ const displayCart = () => {
 
 
     // MODAL BODY
+    if(cart.length > 0){
     cart.forEach((product) => {
         const modalBody = document.createElement('div');
         modalBody.className = "modal-body";
@@ -57,6 +60,8 @@ const displayCart = () => {
                 product.quantity--;
                 displayCart();
             }
+
+            displayCartCounter();
             
         })
 
@@ -64,6 +69,7 @@ const displayCart = () => {
         increse.addEventListener("click", ()=>{
             product.quantity++;
             displayCart();
+            displayCartCounter();
         })
 
         //delete
@@ -81,12 +87,76 @@ const displayCart = () => {
     modalFooter.className = "modal-footer";
     modalFooter.innerHTML = `
     <div class="total-price">Total: ${total}</div>
+    <button class="btn-primary" id="checkout-btn"> Go to Checkout</button>
+    <div id="button-checkout"></div>
     `;
 
     modalContainer.append(modalFooter);
 
+    //Mercado pago
+    const mercadopago = new MercadoPago("public_key", {
+        locale: "es-AR", //The mos common are: 'pt-BR, 'es-AR' and 'en-US'
+    });
 
-}
+    const checkoutButton = modalFooter.querySelector("#checkout-btn");
+    // Handle call to backend and generate preference.
+    checkoutButton.addEventListener("click", function () {
+        checkoutButton.remove();
+
+        const orderData = {
+            quantity: 1,
+            description: "Compra de E-commerce",
+            price: total,
+        };
+
+        fetch("http://localhost:8080/create_preference", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(orderData),
+          })
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (preference) {
+            createCheckoutButton(preference.id);
+        })
+        .catch(function () {
+            alert("Unexpected error");
+        });
+    });
+
+    function createCheckoutButton(preferenceId){
+        //Initialize the checkout
+        const bricksBuilder = mercadopago.brcks();
+
+        const renderComponent = async (bricksBuilder) =>{
+            await bricksBuilder.create(
+                "wallet",
+                "button-checkout",
+                {
+                    initialization:{
+                        preferenceId: preferenceId,
+                    },
+                    callbacks: {
+                        onError: (error) => console.error(error),
+                        onReady: () => {},
+                    },
+                }
+            );
+        };
+        
+        window.checkoutButton = renderComponent(bricksBuilder);
+    }
+
+    }else{
+        const modalText = document.createElement("h2");
+        modalText.className = "modal-body";
+        modalText.innerText = "Your Cart Is Empty";
+        modalContainer.append(modalText);
+    }
+};
 
 cartBtn.addEventListener("click", displayCart);
 
@@ -96,9 +166,21 @@ const deleteCartProduct = (id) =>{
     // console.log(foundId);
     cart.splice(foundId, 1) //Elimina elementos del array mediante 2 parametros. El primero el indice y el segundo cuantos quiero eleminar
     displayCart() //Como modifico el carrito tengo que volver a refrescar el carrito para que aparezcan los cambios
+    
+    displayCartCounter();
 }
 
 
 
+const displayCartCounter = () => {
+    const cartLength = cart.reduce((acc, el) => acc + el.quantity, 0);
+    if(cart.length > 0){
+        cartCounter.style.display = 'block';
+        cartCounter.innerText = cartLength;
+    }else{
+        cartCounter.style.display = 'none';
+    }
+    
+}
 
 
