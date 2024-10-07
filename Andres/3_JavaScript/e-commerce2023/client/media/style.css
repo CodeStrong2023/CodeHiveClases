@@ -213,6 +213,10 @@
     border-color: #0062cc;
 }
 
+#button-checkout{
+    z-index:10;
+}
+
 
 
 /* :root {

@@ -88,75 +88,61 @@ const displayCart = () => {
     modalFooter.innerHTML = `
     <div class="total-price">Total: ${total}</div>
     <button class="btn-primary" id="checkout-btn"> Go to Checkout</button>
-    <div id="button-checkout"></div>
+    <div id="wallet_cointainer"></div>
     `;
 
     modalContainer.append(modalFooter);
 
     //Mercado pago
-    const mercadopago = new MercadoPago("public_key", {
-        locale: "es-AR", //The mos common are: 'pt-BR, 'es-AR' and 'en-US'
+    const mp = new MercadoPago("TEST-dc5ec477-2fab-4d23-b4cd-1bb8b259ace1",{ //Public key
+        locale: "es-AR",  //The mos common are: 'pt-BR, 'es-AR' and 'en-US'
     });
 
-    const checkoutButton = modalFooter.querySelector("#checkout-btn");
-    // Handle call to backend and generate preference.
-    checkoutButton.addEventListener("click", function () {
-        checkoutButton.remove();
+    //Creamos una funcion para que se muestre lo que hay en el carrito(**Agregado) -> podria ir "Su compra en Ecommerce"
+    //Funcion que genera un titulo con la info del carrito
+    const generateCartDescription = () =>{
+        return cart.map(product => `${product.productName} (X${product.quantity})`).join(', ')
+    };
 
-        const orderData = {
-            quantity: 1,
-            description: "Compra de E-commerce",
-            price: total,
-        };
+    document.getElementById("checkout-btn").addEventListener("click", async() =>{
+        try{
+            const orderData = {
+                title: generateCartDescription(),
+                quantity: 1,
+                price: total,
+            };
 
-        fetch("http://localhost:8080/create_preference", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(orderData),
-          })
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (preference) {
+            const response = await fetch("http://localhost:3000/create_preference", {
+                method: "POST",
+                headers:{
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(orderData),
+            });
+
+            const preference = await response.json();
             createCheckoutButton(preference.id);
-        })
-        .catch(function () {
-            alert("Unexpected error");
-        });
+        }catch(error){
+            alert("Error 😥");
+        }
     });
 
-    function createCheckoutButton(preferenceId){
-        //Initialize the checkout
-        const bricksBuilder = mercadopago.brcks();
+    const createCheckoutButton = (preferenceId) =>{
+        const bricksBuilder = mp.bricks();
 
-        const renderComponent = async (bricksBuilder) =>{
-            await bricksBuilder.create(
-                "wallet",
-                "button-checkout",
-                {
-                    initialization:{
-                        preferenceId: preferenceId,
-                    },
-                    callbacks: {
-                        onError: (error) => console.error(error),
-                        onReady: () => {},
-                    },
-                }
-            );
+        const renderComponent = async() =>{
+            if (window.checkoutButton) window.checkoutButton.unmount(); //Para que no se creen 2 instancias de boton de mercadopago
+
+            await bricksBuilder.create("wallet", "wallet_cointainer", {
+                initialization: {
+                    preferenceId: preferenceId
+                },
+            });
         };
-        
-        window.checkoutButton = renderComponent(bricksBuilder);
-    }
 
-    }else{
-        const modalText = document.createElement("h2");
-        modalText.className = "modal-body";
-        modalText.innerText = "Your Cart Is Empty";
-        modalContainer.append(modalText);
-    }
-};
+        renderComponent();
+    };
+}}
 
 cartBtn.addEventListener("click", displayCart);
 
@@ -166,11 +152,8 @@ const deleteCartProduct = (id) =>{
     // console.log(foundId);
     cart.splice(foundId, 1) //Elimina elementos del array mediante 2 parametros. El primero el indice y el segundo cuantos quiero eleminar
     displayCart() //Como modifico el carrito tengo que volver a refrescar el carrito para que aparezcan los cambios
-    
     displayCartCounter();
 }
-
-
 
 const displayCartCounter = () => {
     const cartLength = cart.reduce((acc, el) => acc + el.quantity, 0);
@@ -180,7 +163,4 @@ const displayCartCounter = () => {
     }else{
         cartCounter.style.display = 'none';
     }
-    
 }
-
-
