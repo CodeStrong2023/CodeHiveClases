@@ -1,6 +1,8 @@
 import sys
 import pygame
 from constantes import SCREEN_WIDTH, SCREEN_HEIGTH, ASSETS_PATH, IMPERIAL_MARCH_PATH, FONDO1_PATH, ESTRELLA_PATH
+from personaje import Personaje
+from personaje import *
 
 
 def mostrar_pantalla_inicio(screen):
@@ -70,7 +72,41 @@ def main():
                 pygame.quit()
                 sys.exit()
 
+        keys = pygame.key.get_pressed()
+        dx, dy = 0, 0
 
+        if keys[pygame.K_LEFT]:
+            dx = -5
+        if keys[pygame.K_RIGHT]:
+            dx = 5
+        if keys[pygame.K_UP]:
+            dy = -5
+        if keys[pygame.K_DOWN]:
+            dy = 5
+
+        personaje.mover(dx, dy)
+
+        if keys[pygame.K_SPACE]:
+            personaje.lanzar_laser()
+            sonido_laser.play()
+
+
+    for enemigo in enemigos:
+        enemigo.mover()
+        if enemigo.rect.top > SCREEN_HEIGTH:
+            enemigo.remove(enemigo)
+
+    for laser in personaje.lasers:
+        if enemigo.rect.colliderect(laser.rect):
+            explosiones.append(Explosion(enemigo.rect.centerx, enemigo.rect.centery))
+            enemigo.remove(enemigo)
+            personaje.lasers.remove(laser)
+            sonido.explosion.play()
+            puntos += 10
+            break
+    if enemigo.rect.colliderect(personaje.shape):
+        if not personaje.recibir_dano():
+            running = False
 
 
 
