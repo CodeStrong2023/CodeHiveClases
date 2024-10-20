@@ -1,6 +1,6 @@
 # Dimensiones de la pantalla
 SCREEN_WIDTH = 1700
-SCREEN_HEIGTH = 1000
+SCREEN_HEIGHT = 1000
 
 
 # Rutas de los assets
